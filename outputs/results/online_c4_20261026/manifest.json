@@ -1,0 +1,20 @@
+{
+  "study": "Early-Bird CIFAR-10 VGG16-BN online t_s comparison",
+  "run_ids": {
+    "baseline": "20261026T130454_baseline_seed1",
+    "C1_tm_minus_10": "20261026T130454_C1_before_online_seed1",
+    "C2_tm": "20261026T130454_C2_near_online_seed1",
+    "C3_tm_plus_10": "20261026T130454_C3_after_online_seed1",
+    "C4_fixed_ts_40": "20261026T130454_C4_fixed_online_seed1"
+  },
+  "tm": 28,
+  "included_conditions": [
+    "baseline",
+    "C1",
+    "C2",
+    "C3",
+    "C4"
+  ],
+  "omitted": "Full checkpoints (large model weights) and raw smoke/failed runs; source run outputs remain outside the curated Git bundle.",
+  "reproducibility": "Per-run configs, environment metadata, logs, epoch CSVs, summaries, masks and plots are included."
+}

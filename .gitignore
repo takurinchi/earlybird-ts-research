@@ -1,0 +1,8 @@
+.venv/
+.cache/
+**/__pycache__/
+.pytest_cache/
+data/
+outputs/20261026*/
+outputs/smoke*/
+outputs/results/*/runs/*/checkpoints/
