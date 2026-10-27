@@ -64,6 +64,55 @@ def _save_summary(out, summary):
     (out / "summary.json").write_text(json.dumps(summary, indent=2, allow_nan=False), encoding="utf-8")
 
 
+def _write_final_metrics_to_epoch_csv(metrics_path, summary):
+    """Add run-level test and compact-model metrics to every epoch row."""
+    if not metrics_path.exists() or metrics_path.stat().st_size == 0:
+        return
+    with metrics_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        fieldnames = list(reader.fieldnames or [])
+    # These were per-epoch placeholders and were always empty: FLOPs, size and
+    # inference latency are measured once on the final compact model instead.
+    fieldnames = [name for name in fieldnames if name not in {"flops", "inference_time", "model_size"}]
+    final_values = {
+        "run_status": summary.get("status"),
+        "final_test_loss": summary.get("loss"),
+        "final_test_accuracy": summary.get("accuracy"),
+        "final_test_f1_macro": summary.get("f1_macro"),
+        "final_parameter_count": summary.get("parameter_count"),
+        "final_zero_parameter_count": summary.get("zero_parameter_count"),
+        "final_parameter_sparsity": summary.get("sparsity"),
+        "final_flops_per_sample": summary.get("flops_per_sample"),
+        "final_model_size_bytes": summary.get("model_size_bytes"),
+        "final_inference_seconds_per_sample": summary.get("inference_seconds_per_sample"),
+        "run_training_seconds": summary.get("training_seconds"),
+        "run_wall_seconds": summary.get("wall_seconds"),
+        "mask_detection_seconds": summary.get("mask_detection_seconds"),
+    }
+    reduction_fields = {
+        "final_parameter_count_reduction_percent": "parameter_count_reduction_percent",
+        "final_flops_reduction_percent": "flops_per_sample_reduction_percent",
+        "final_model_size_reduction_percent": "model_size_bytes_reduction_percent",
+    }
+    for output_name, summary_name in reduction_fields.items():
+        if summary_name in summary:
+            final_values[output_name] = summary[summary_name]
+    for name in final_values:
+        if name not in fieldnames:
+            fieldnames.append(name)
+    for row in rows:
+        for name in ("flops", "inference_time", "model_size"):
+            row.pop(name, None)
+        row.update({name: "" if value is None else value for name, value in final_values.items()})
+    tmp_path = metrics_path.with_suffix(metrics_path.suffix + ".tmp")
+    with tmp_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    tmp_path.replace(metrics_path)
+
+
 def _make_loaders(config):
     return create_loaders(root=str(ROOT / "data" / "cifar10"),
         batch_size=int(config["data"]["kwargs"]["batch_size"]),
@@ -194,6 +243,7 @@ def run_one(config, exp_id, stage, ts=None, information_mode=None, stable_masks=
         with (out / "metrics.csv").open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=list(rows[0]))
             writer.writeheader(); writer.writerows(rows)
+    _write_final_metrics_to_epoch_csv(out / "metrics.csv", summary)
     return summary, stable_masks
 
 
@@ -247,6 +297,7 @@ def run_full(config, resume_baseline=None):
                 summary[metric + "_reduction_percent"] = (
                     (base - value) / base * 100 if base and value is not None else None)
             out = ROOT / config["experiment"].get("output_root", "outputs") / summary["experiment_id"]
+            _write_final_metrics_to_epoch_csv(out / "metrics.csv", summary)
             _save_summary(out, summary)
     comparison_path = ROOT / config["experiment"].get("output_root", "outputs") / f"ts_comparison_{run_id}.csv"
     with comparison_path.open("w", newline="", encoding="utf-8") as f:

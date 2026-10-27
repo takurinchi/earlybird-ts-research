@@ -57,11 +57,11 @@ FLOPsはConv2dとLinear演算から1画像あたりの積和FLOPsを計算しま
 
 ## 出力仕様
 
-`outputs/<experiment_id>/` に `config.yaml`, `environment.json`, `run.log`, `metrics.csv`, `mask_distances.csv`, `summary.json`, checkpoints, masks, plotsを保存します。未検出の `t_m` はsummaryに検出失敗として残し、t_s sweepは開始しません。
+`outputs/<experiment_id>/` に `config.yaml`, `environment.json`, `run.log`, `metrics.csv`, `mask_distances.csv`, `summary.json`, checkpoints, masks, plotsを保存します。`metrics.csv` はepochごとの訓練・検証指標に加え、実験完了後に最終テスト指標、縮小モデルのパラメータ数・FLOPs・サイズ・推論時間を `final_*` 列として全行に記録します。未検出の `t_m` はsummaryに検出失敗として残し、t_s sweepは開始しません。
 
 ## TODOや仕様書の重複・注意点
 
-1. **重複する成果物要件**：5章の評価指標表、7章の `metrics.csv` 列、7章の `summary.json` 項目がAccuracy/F1、時間、サイズ、疎性などで重なっています。正本をCSVの機械可読列とし、summaryは実験単位の設定・完了状態・集約値だけに絞ると二重管理を避けられます。
+1. **成果物の粒度**：`metrics.csv` はepoch別指標と、完了後に全行へ付加する明示的な `final_*` 列を持ちます。`summary.json` はrunごとの単一要約です。CSV単体で解析できるよう意図的に一部を重複記録するため、更新時は両者の値を同期させてください。
 2. **重複するマスク検証要件**：2章・3.2・8章で距離定義、検出失敗、安定判定が繰り返されています。アルゴリズム定義を一か所に固定し、他の節は参照する形が保守しやすいです。実装は公式コードの閾値境界・窓長に合わせています。
 3. **構造化枝刈りの実測**：学習中は `BNChannelMaskManager` がBN出力をゲートし、最終評価前にVGG16のConv/BN/Linear重みを選択チャネルへ物理的に縮約します。FLOPsとサイズは縮約モデルから測ります。推論時間は環境依存の測定値として別途解釈してください。
 4. **時間指標の境界**：「学習時間」と「マスク生成・検出時間」の合算・内訳が曖昧です。実行コードでは通常学習、マスク生成/検出、スパース化後学習、評価を別々に計時してください。
