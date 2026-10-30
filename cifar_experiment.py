@@ -16,6 +16,7 @@ import torch
 import yaml
 
 from analysis.plot_mask_distance import plot_mask_distance
+from analysis.plot_ts_comparison import plot_ts_comparison
 from data.cifar10 import create_loaders
 from earlybird.stability_detector import StabilityDetector
 from evaluation.classification import evaluate_classifier
@@ -114,7 +115,10 @@ def _write_final_metrics_to_epoch_csv(metrics_path, summary):
 
 
 def _make_loaders(config):
-    return create_loaders(root=str(ROOT / "data" / "cifar10"),
+    data_root = Path(config["data"].get("root", "data/cifar10"))
+    if not data_root.is_absolute():
+        data_root = ROOT / data_root
+    return create_loaders(root=str(data_root),
         batch_size=int(config["data"]["kwargs"]["batch_size"]),
         seed=int(config["project"]["seed"]))
 

@@ -10,11 +10,26 @@
   "tm": 28,
   "included_conditions": [
     "baseline",
-    "C1",
-    "C2",
-    "C3",
-    "C4"
+    "C1_tm_minus_10",
+    "C2_tm",
+    "C3_tm_plus_10",
+    "C4_fixed_ts_40",
+    "C1_tm_minus_10_posthoc",
+    "C2_tm_posthoc",
+    "C3_tm_plus_10_posthoc",
+    "C4_fixed_ts_40_posthoc"
   ],
   "omitted": "Full checkpoints (large model weights) and raw smoke/failed runs; source run outputs remain outside the curated Git bundle.",
-  "reproducibility": "Per-run configs, environment metadata, logs, epoch CSVs, summaries, masks and plots are included."
+  "reproducibility": "Per-run configs, environment metadata, logs, epoch CSVs, summaries, masks and plots are included.",
+  "posthoc_run_ids": {
+    "C1_tm_minus_10_posthoc": "20261027T161022_C1_before_posthoc_seed1",
+    "C2_tm_posthoc": "20261027T161022_C2_near_posthoc_seed1",
+    "C3_tm_plus_10_posthoc": "20261027T161022_C3_after_posthoc_seed1",
+    "C4_fixed_ts_40_posthoc": "20261027T161022_C4_fixed_posthoc_seed1"
+  },
+  "posthoc_comparison_csv": "posthoc_comparison.csv",
+  "information_modes": [
+    "online",
+    "posthoc"
+  ]
 }

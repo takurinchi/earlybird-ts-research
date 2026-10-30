@@ -72,10 +72,10 @@ FLOPsはConv2dとLinear演算から1画像あたりの積和FLOPsを計算しま
 
 ## 検証
 
-`pytest -q`: 15件成功。GPUスモーク実行（1 epoch）成功。ベースラインとonline方式C1〜C4を各160 epoch実行し、最終テスト評価まで完了しました。posthoc方式は未実行です。
+`pytest -q`: 15件成功。GPUスモーク実行（1 epoch）成功。ベースラインとonline/posthoc各C1〜C4を各160 epoch実行し、最終テスト評価まで完了しました。
 
 ## 保存済み結果（2026-10-26）
 
-Gitに含める再現・分析用成果物を `outputs/results/online_c4_20261026/` にまとめています。`summary.csv` はbaselineとC1〜C4の最終評価、`metrics_all_epochs.csv` は全800 epochの訓練・検証指標です。`accuracy_by_ts.png` はonline条件のテスト精度比較、baselineのマスク安定距離図は `runs/baseline/plots/mask_distance.png` にあります。各runには設定、環境情報、ログ、epoch別CSV、JSON要約を含め、baseline安定マスクと各online遷移マスクも保存しています。
+Gitに含める再現・分析用成果物を `outputs/results/online_c4_20261026/` にまとめています。`summary.csv` はbaselineとonline/posthocのC1〜C4の最終評価、`metrics_all_epochs.csv` は全1,440 epochの訓練・検証指標です。`accuracy_by_ts.png` はonline/posthocの精度比較、baselineのマスク安定距離図は `runs/baseline/plots/mask_distance.png` にあります。各runには設定、環境情報、ログ、epoch別CSV、JSON要約を含め、baseline安定マスクと各runの遷移マスクも保存しています。
 
-大きな学習済み重みチェックポイントはGitには含めていません。C4最終結果は `runs/C4_fixed_ts_40/summary.json` に記録されています（CIFAR-10テスト精度92.77%、Macro-F1 92.75%）。C4完了後、posthoc条件は開始していません。
+大きな学習済み重みチェックポイントはGitには含めていません。各条件の最終指標は `summary.csv` と `runs/<condition>/summary.json` に記録されています。

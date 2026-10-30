@@ -3,6 +3,9 @@
 **/__pycache__/
 .pytest_cache/
 data/
-outputs/20261026*/
+outputs/20*/
 outputs/smoke*/
 outputs/results/*/runs/*/checkpoints/
+outputs/ts_comparison_*.csv
+outputs/ts_comparison_*.png
+outputs/run_summary_*.json
